@@ -1,0 +1,65 @@
+import { Command, Flags, ux } from "@oclif/core"
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
+
+export default class Init extends Command {    
+    static description = "Creates a configuration directory";
+    
+    static examples = [
+        `$ imsg config init -k "openai apikey"`,
+    ];
+
+    static flags = {
+        openAiApiKey: Flags.string({
+            char: "a",
+            required: false,
+            aliases: ["apiKey"]
+        }),
+        rootCount: Flags.integer({
+            char: "r", 
+            description: "Number of roots", 
+            default: 5,
+            required: false,
+            aliases: ["rootCount", "roots"]
+        }),
+        leafCount: Flags.integer({
+            char: "l", 
+            description: "Number of messages around each root to use for conversation context", 
+            default: 100,
+            required: false,
+            aliases: ["leafCount", "leafs"]
+        }),
+        openAIApiKey: Flags.string({
+            char: "k", 
+            description: "API key for OpenAI", 
+            required: true
+        })
+    };
+    
+    async run(): Promise<void> {
+        const {args, flags} = await this.parse(Init);
+        let configDir = join(process.env.HOME || "~", ".imsg-analyzer");
+        let configFile = join(configDir, "config.json")
+        
+        let name = await ux.prompt("What is your name?");
+
+        // if config dir doesn't exist, create it
+        if (!existsSync(configDir)) {
+            mkdirSync(configDir);
+        }
+
+        if (existsSync(configFile)) {
+            this.log("Overwriting config file...");
+        }
+
+        writeFileSync(configFile, JSON.stringify({
+            name: name,
+            rootCount: flags.rootCount,
+            leafCount: flags.leafCount,
+            apiKey: flags.openAIApiKey || null,
+            configVersion: 0
+        }, null, 4));
+
+        this.log(`Created config file at ${configFile}`);
+    }
+}
