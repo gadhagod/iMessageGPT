@@ -38,7 +38,7 @@ export default class Init extends Command {
     
     async run(): Promise<void> {
         const {args, flags} = await this.parse(Init);
-        let configDir = join(process.env.HOME || "~", ".imsg-analyzer");
+        let configDir = join(process.env.HOME || "~", ".imessagegpt");
         let configFile = join(configDir, "config.json")
         
         let name = await ux.prompt("What is your name?");

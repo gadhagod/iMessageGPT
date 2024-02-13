@@ -25,7 +25,7 @@ class ApiKeyNotFound extends Error {
     }
 }
 
-export const configDir = join(process.env.HOME || "~", ".imsg-analyzer");
+export const configDir = join(process.env.HOME || "~", ".imessagegpt");
 export const configFile = join(configDir, "config.json");
 
 function getApiKey(config: any) {

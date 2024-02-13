@@ -71,8 +71,8 @@ export default class Scan extends Command {
                     datetime(substr(date, 1, 9) + 978307200, 'unixepoch', 'localtime') as date,
                     handle_id,
                     text
-                FROM MESSAGE
-                WHERE text LIKE '%${keyPhrase}%'
+                FROM UPPER(MESSAGE)
+                WHERE text LIKE UPPER('%${keyPhrase}%')
                 LIMIT 1`, 
                 async (err, rows: any) => {
                     if (err) {
