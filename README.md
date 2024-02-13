@@ -7,14 +7,14 @@ Ask GPT questions about your iMessage history.
 
 ## Installation
 
-```
-npm i -g imessagegpt
+```sh-session
+$ npm i -g imessagegpt
 ```
 
 Verify installation with:
 
-```
-imsg --help
+```sh-session
+$ imsg --help
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ Allow terminal access to `~/Library/Messages/chat.db`, which is where iMessages 
 2. ### Create config file
 Now, initialize your config directory with `imsg config init`. Pass in your [OpenAI api key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-api-key) to the `--openAIApiKey` or `-k` flag. You will be prompted a for your name, which will the LLM will use to distinguish you and the other person in the chat. The config directory will be stored at `~/.imessagegpt`.
 
-```
+```sh-session
 $ imsg config init -k "key"
 
 What is your name?: John
@@ -38,7 +38,7 @@ You will then be asked to describe the relationship between you and the other pe
 
 This command reads the `chat.db` file, builds a [USearch](https://unum-cloud.github.io/usearch) index, and saves it into the config directory. 
 
-```
+```sh-session
 $ imsg chat scan
 
 What is the other person's name?: Sarah
@@ -58,7 +58,7 @@ Chat scanned and saved. Run `imsg chat analyze Sarah` or `imsg chat ask Sarah` t
 4. ### Query the chat
 Ask questions about your chat history with `imsg chat ask`. Pass in the name specified in the `scan` command (case sensitive).
 
-```
+```sh-session
 imsg chat ask "Sarah"    # query chat with Sarah
 
 Prompt: Describe the relationship between John and Sarah.
