@@ -3,7 +3,7 @@ import { Document } from "@langchain/core/documents";
 import sqlite3 from "sqlite3"
 import {Args, Command, Flags, ux} from "@oclif/core"
 import { join } from "path";
-import { configDir, getConfig, getOpenAInstance, messageRowToDoc } from "../../util.js";
+import { configDir, getConfig, getEmbeddingsInstance, messageRowToDoc } from "../../util.js";
 import { USearch } from "@langchain/community/vectorstores/usearch";
 import { writeFileSync } from "fs";
 
@@ -71,56 +71,59 @@ export default class Scan extends Command {
                     datetime(substr(date, 1, 9) + 978307200, 'unixepoch', 'localtime') as date,
                     handle_id,
                     text
-                FROM UPPER(MESSAGE)
-                WHERE text LIKE UPPER('%${keyPhrase}%')
+                FROM MESSAGE
+                WHERE text LIKE '%${keyPhrase}%' COLLATE NOCASE -- case insensitive
+                AND NOT is_service_message
+                AND NOT is_audio_message
+                AND cache_roomnames is null  -- exclude group chats
                 LIMIT 1`, 
                 async (err, rows: any) => {
                     if (err) {
-                        console.log(err);
                         throw err;
                     }
-                    if (!rows) {
-                        this.error("No matching messages found. Try another key phrase");
-                    } else {
-                        let msg = rows[0];
-                        if(await ux.prompt(
-                            "\nAre you referring to this message:" + 
-                            `\n\tOn ${msg.date}:`+
-                            `\n\t"${msg.text}"` + 
-                            "\n Type (y/n): "
-                        ) === "y") {
-                            Scan.handleId =  msg.handle_id as number;
-                            ux.action.start("Scanning");
-                            let docs = await this.getMessages(messagesDb, Scan.handleId, config.name, profileName);
-                            ux.action.stop();
-                            messagesDb.close();
-                            const rootStore = new USearch(getOpenAInstance(config), {
-                                index: new usearch.Index({
-                                    metric: "l2sq",
-                                    connectivity: BigInt(16),
-                                    dimensions: BigInt(1536),
-                                })
-                            });
-                            await rootStore.addDocuments(docs);
-                            rootStore.index.save(profileIndexFile);
+                    if (!rows || rows.length === 0) {
+                        this.error("No matching messages found.", {
+                            suggestions: ["Try another message"]
+                        });
+                    }
+                    let msg = rows[0];
+                    if(await ux.prompt(
+                        "\nAre you referring to this message:" + 
+                        `\n\tOn ${msg.date}:`+
+                        `\n\t"${msg.text}"` + 
+                        "\n Type (y/n): "
+                    ) === "y") {
+                        Scan.handleId =  msg.handle_id as number;
+                        ux.action.start("Scanning");
+                        let docs = await this.getMessages(messagesDb, Scan.handleId, config.name, profileName);
+                        ux.action.stop();
+                        messagesDb.close();
+                        const rootStore = new USearch(getEmbeddingsInstance(config), {
+                            index: new usearch.Index({
+                                metric: "l2sq",
+                                connectivity: BigInt(16),
+                                dimensions: BigInt(1536),
+                            })
+                        });
+                        await rootStore.addDocuments(docs);
+                        rootStore.index.save(profileIndexFile);
 
-                            let docstore = Array.from(rootStore.docstore._docs.entries());
-                            for (let i = 0; i < docstore.length; i++)
-                            {
-                                (docstore[i] as Document<Record<string, any>> | [string, Document<Record<string, any>>]) = docstore[i][1];
-                            }
-                            
-
-                            writeFileSync(profileStoreFile,  JSON.stringify({
-                                context: await ux.prompt(`What is the relationship between ${config.name} and ${profileName} (e.g "${config.name} and ${profileName} are close cousins and best friends")?`), 
-                                docstore
-                            }));
-
-                            console.log(`Chat scanned and saved. Run \`imsg chat analyze ${profileName}\` or \`imsg chat ask ${profileName}\` to query`)
-                            //renameSync(join(configDir, "usearch.index"), profileIndexFile);
-                        } else {
-                            this.error("No matching messages found. Try another key phrase");
+                        let docstore = Array.from(rootStore.docstore._docs.entries());
+                        for (let i = 0; i < docstore.length; i++)
+                        {
+                            (docstore[i] as Document<Record<string, any>> | [string, Document<Record<string, any>>]) = docstore[i][1];
                         }
+                        
+
+                        writeFileSync(profileStoreFile,  JSON.stringify({
+                            context: await ux.prompt(`What is the relationship between ${config.name} and ${profileName} (e.g "${config.name} and ${profileName} are close cousins and best friends")?`), 
+                            docstore
+                        }));
+
+                        console.log(`Chat scanned and saved. Run \`imsg chat analyze ${profileName}\` or \`imsg chat ask ${profileName}\` to query`)
+                        //renameSync(join(configDir, "usearch.index"), profileIndexFile);
+                    } else {
+                        this.error("No matching messages found. Try another key phrase");
                     }
                 }
             );

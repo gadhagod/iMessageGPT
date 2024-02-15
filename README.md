@@ -31,6 +31,14 @@ What is your name?: John
 Created config file at /Users/25John/.imsg-analyzer/config.json
 ```
 
+The chat model configured `gpt-4-1106-preview`. If you are on the free OpenAI tier you will *have* to pass in a chat model parameter:
+
+```sh-session
+$ imsg config init -k "key" --chatModel gpt-3.5-turbo  
+```
+
+By default, `gpt-4-1106-preview` model is used for chat and `text-embedding-ada-002` is used for embeddings. If you would like to use different models use the `--chatModel` and `--embeddingsModel` flags.
+
 3. ### Scan the chat
 Next, scan the chat you would like to query with `imsg chat scan`. You will be prompted the name of the other person in the chat, used by the LLM to distinguish the two members of the chat. You will be prompted to enter a message that the other person in the chat has sent, to retrieve their iMessage [handle ID](https://medium.com/@yaskalidis/heres-how-you-can-access-your-entire-imessage-history-on-your-mac-f8878276c6e9#:~:text=Getting%20the%20message%20text%20and%20phone%20number&text=After%20a%20little%20exploration%20I,handle%20and%20join%20on%20handle_id.) for your system. 
 
@@ -59,7 +67,7 @@ Chat scanned and saved. Run `imsg chat analyze Sarah` or `imsg chat ask Sarah` t
 Ask questions about your chat history with `imsg chat ask`. Pass in the name specified in the `scan` command (case sensitive).
 
 ```sh-session
-imsg chat ask "Sarah"    # query chat with Sarah
+$ imsg chat ask "Sarah"    # query chat with Sarah
 
 Prompt: Describe the relationship between John and Sarah.
 
@@ -68,6 +76,8 @@ John and Sarah share a complex and dynamic relationship that borders on a close 
 ```
 
 You can now `scan` other chats and `ask` about them too!
+
+For more detailed answers, use the `gpt-4-1106-preview` chat model. For faster answers, use `gpt-3.5-turbo`.
 
 <!-- toc -->
 * [CLI Overview](#usage)

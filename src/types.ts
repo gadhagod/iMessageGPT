@@ -4,7 +4,9 @@ export interface Config {
     name: string,
     rootCount: number,
     leafCount: number,
-    apiKey?: string
+    apiKey?: string,
+    chatModel: string,
+    embeddingsModel: string
 }
 
 export type MessageDoc = Document<Record<string, any>>;

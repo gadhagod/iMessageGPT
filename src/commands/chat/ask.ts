@@ -2,11 +2,10 @@ import { RetrievalQAChain } from "langchain/chains";
 import { USearch as USearchStore } from "@langchain/community/vectorstores/usearch";
 import usearch from "usearch";
 import { Document } from "@langchain/core/documents";
-import { Args, Command, Flags, ux } from "@oclif/core"
+import { Args, Command, ux } from "@oclif/core"
 import { join } from "path";
-import { ConversationParser, configDir, getConfig, getOpenAInstance } from "../../util.js";
-import { ChatOpenAI } from "@langchain/openai";
-import { readFileSync, renameSync, writeFileSync } from "fs";
+import { ConversationParser, configDir, getChatInstance, getConfig, getEmbeddingsInstance } from "../../util.js";
+import { readFileSync } from "fs";
 
 export default class Ask extends Command {
     static handleId: number;
@@ -27,7 +26,7 @@ export default class Ask extends Command {
 
     public static async ask(othersName: string, question: string): Promise<void> {
         let config = getConfig();
-        let openAi = getOpenAInstance(config);
+        let openAi = getEmbeddingsInstance(config);
 
         let profileStoreFile = join(configDir, `${othersName}.store.json`);
         let profileIndexFile = join(configDir, `${othersName}.index`);
@@ -67,11 +66,7 @@ export default class Ask extends Command {
         }
 
         let leafStore = await USearchStore.fromDocuments(leafs, openAi) as any;
-        let model = new ChatOpenAI({
-            modelName: "gpt-4-1106-preview",
-            //maxTokens: 4000,
-            temperature: 1.2
-        });
+        let model = getChatInstance(config);
         let chain = RetrievalQAChain.fromLLM(model, leafStore.asRetriever());
         const response = await chain.call({ query: `The context given is a text message conversation between ${config.name} and ${othersName}. The following describes their relationship: "${context}". Respond to this prompt based on the context and make your answer as long as possible: ${question}` });
 

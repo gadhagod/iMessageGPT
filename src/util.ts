@@ -1,5 +1,5 @@
 import { Document } from "@langchain/core/documents";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { existsSync, readFileSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 import { Config, MessageDoc } from "./types.js";
@@ -52,7 +52,9 @@ export function getConfig(): Config {
         !configKeys.includes("name") || 
         !configKeys.includes("rootCount") || 
         !configKeys.includes("leafCount") || 
-        !configKeys.includes("configVersion")
+        !configKeys.includes("configVersion") ||
+        !configKeys.includes("embeddingsModel") ||
+        !configKeys.includes("chatModel")
         ) {
         throw new ConfigCorruptedError();
     }
@@ -78,9 +80,19 @@ export function deleteProfile(profileName: string) {
     unlinkSync(profileIndexFile);
 }
 
-export function getOpenAInstance(config: Config) {
+export function getEmbeddingsInstance(config: Config) {
     return new OpenAIEmbeddings({
-        openAIApiKey: getApiKey(config)
+        openAIApiKey: getApiKey(config),
+        modelName: config.embeddingsModel
+    });
+}
+
+export function getChatInstance(config: Config) {
+    console.log(config.chatModel);
+    return new ChatOpenAI({
+        modelName: config.chatModel,
+        //maxTokens: 4000,
+        temperature: 1.2
     });
 }
 

@@ -33,6 +33,18 @@ export default class Init extends Command {
             char: "k", 
             description: "API key for OpenAI", 
             required: true
+        }),
+        embeddingsModel: Flags.string({
+            char: "e",
+            description: "OpenAI model used for embeddings",
+            required: false,
+            default: "text-embedding-ada-002"
+        }),
+        chatModel: Flags.string({
+            char: "c",
+            description: "OpenAI model used for chat",
+            required: false,
+            default: "gpt-4-1106-preview"
         })
     };
     
@@ -57,6 +69,8 @@ export default class Init extends Command {
             rootCount: flags.rootCount,
             leafCount: flags.leafCount,
             apiKey: flags.openAIApiKey || null,
+            embeddingsModel: flags.embeddingsModel,
+            chatModel: flags.chatModel,
             configVersion: 0
         }, null, 4));
 
