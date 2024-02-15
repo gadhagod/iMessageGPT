@@ -88,7 +88,6 @@ export function getEmbeddingsInstance(config: Config) {
 }
 
 export function getChatInstance(config: Config) {
-    console.log(config.chatModel);
     return new ChatOpenAI({
         modelName: config.chatModel,
         //maxTokens: 4000,

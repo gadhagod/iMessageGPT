@@ -28,7 +28,7 @@ Now, initialize your config directory with `imsg config init`. Pass in your [Ope
 $ imsg config init -k "key"
 
 What is your name?: John
-Created config file at /Users/25John/.imsg-analyzer/config.json
+Created config file at /Users/25John/.imessagegpt/config.json
 ```
 
 The chat model configured `gpt-4-1106-preview`. If you are on the free OpenAI tier you will *have* to pass in a chat model parameter:
@@ -80,8 +80,12 @@ You can now `scan` other chats and `ask` about them too!
 For more detailed answers, use the `gpt-4-1106-preview` chat model. For faster answers, use `gpt-3.5-turbo`.
 
 <!-- toc -->
-* [CLI Overview](#usage)
-* [Commands](#commands)
+
+## For Best Results
+Try using iMessageGPT on your most frequently used chats with long conversations. With this, the LLM can better understand the dynamic between the two members of the chat.
+
+`imsg config init` takes two optional parameters: `rootCount` and `leafCount`. `rootCount` describes the number of messages to match based on embedding similarity in the conversation. `leafCount` describes the number of messages used to contextualize the closest matches. By default, `rootCount` is set ot 10 while `leafCount` is set to 100. When asking general questions (e.g. "describe the relationship between x and y"), set rootCount low and leafCount high, so that the LLM has enough context to determine the dynamic between the two members of the cat. When asking specific questions (e.g "why did x say y")  set rootCount high and leafCount high so that the LLM can focus on the important details.
+
 <!-- tocstop -->
 ## Usage
 <!-- usage -->
@@ -107,7 +111,7 @@ USAGE
 * [`imsg config init`](#imsg-config-init)
 * [`imsg help [COMMANDS]`](#imsg-help-commands)
 
-### `imsg chat analyze NAME`
+## `imsg chat analyze NAME`
 
 Gives a general overview of a chat
 
@@ -127,7 +131,7 @@ EXAMPLES
 
 _See code: [src/commands/chat/analyze.ts](https://github.com/gadhagod/iMessageGPT/blob/v0.0.0/src/commands/chat/analyze.ts)_
 
-### `imsg chat ask NAME`
+## `imsg chat ask NAME`
 
 Ask a question about a chat
 
@@ -147,7 +151,7 @@ EXAMPLES
 
 _See code: [src/commands/chat/ask.ts](https://github.com/gadhagod/iMessageGPT/blob/v0.0.0/src/commands/chat/ask.ts)_
 
-### `imsg chat delete NAME`
+## `imsg chat delete NAME`
 
 Deletes a chat that has been scanned
 
@@ -167,7 +171,7 @@ EXAMPLES
 
 _See code: [src/commands/chat/delete.ts](https://github.com/gadhagod/iMessageGPT/blob/v0.0.0/src/commands/chat/delete.ts)_
 
-### `imsg chat list`
+## `imsg chat list`
 
 Lists all chats that have been scanned
 
@@ -184,7 +188,7 @@ EXAMPLES
 
 _See code: [src/commands/chat/list.ts](https://github.com/gadhagod/iMessageGPT/blob/v0.0.0/src/commands/chat/list.ts)_
 
-### `imsg chat scan`
+## `imsg chat scan`
 
 Scans a chat and stores its data
 
@@ -193,7 +197,7 @@ USAGE
   $ imsg chat scan [-d <value>]
 
 FLAGS
-  -d, --chatDb=<value>  [default: ~/Library/Messages/chat.db] Path of .db file containing messages
+  -d, --chatDb=<value>  [default: /Users/25aaravb/Library/Messages/chat.db] Path of .db file containing messages
 
 DESCRIPTION
   Scans a chat and stores its data
@@ -204,19 +208,21 @@ EXAMPLES
 
 _See code: [src/commands/chat/scan.ts](https://github.com/gadhagod/iMessageGPT/blob/v0.0.0/src/commands/chat/scan.ts)_
 
-### `imsg config init`
+## `imsg config init`
 
 Creates a configuration directory
 
 ```
 USAGE
-  $ imsg config init -k <value> [-a <value>] [-r <value>] [-l <value>]
+  $ imsg config init -k <value> [-a <value>] [-r <value>] [-l <value>] [-e <value>] [-c <value>]
 
 FLAGS
   -a, --openAiApiKey=<value>
-  -k, --openAIApiKey=<value>  (required) API key for OpenAI
-  -l, --leafCount=<value>     [default: 100] Number of messages around each root to use for conversation context
-  -r, --rootCount=<value>     [default: 5] Number of roots
+  -c, --chatModel=<value>        [default: gpt-4-1106-preview] OpenAI model used for chat
+  -e, --embeddingsModel=<value>  [default: text-embedding-ada-002] OpenAI model used for embeddings
+  -k, --openAIApiKey=<value>     (required) API key for OpenAI
+  -l, --leafCount=<value>        [default: 100] Number of messages around each root to use for conversation context
+  -r, --rootCount=<value>        [default: 5] Number of roots
 
 DESCRIPTION
   Creates a configuration directory
@@ -227,7 +233,7 @@ EXAMPLES
 
 _See code: [src/commands/config/init.ts](https://github.com/gadhagod/iMessageGPT/blob/v0.0.0/src/commands/config/init.ts)_
 
-### `imsg help [COMMANDS]`
+## `imsg help [COMMANDS]`
 
 Display help for imsg.
 
