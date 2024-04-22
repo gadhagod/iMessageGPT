@@ -3,7 +3,7 @@ iMessageGPT
 
 Ask GPT questions about your iMessage history.
 
-<!-- ![https://www.youtube.com/watch?v=ABdvXmSXd94](https://s13.gifyu.com/images/SCAj1.gif) -->
+![](https://s13.gifyu.com/images/SCAj1.gif)
 
 ## Installation
 
