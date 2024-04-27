@@ -16,7 +16,7 @@
   "description": "Ask GPT questions about your iMessage history",
   "devDependencies": {
     "@types/node": "^18",
-    "oclif": "^4.3.6",
+    "oclif": "^4.9.0",
     "shx": "^0.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5"
